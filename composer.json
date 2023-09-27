@@ -1,0 +1,39 @@
+{
+    "name": "loophp/composer-strip-nondeterminism",
+    "description": "A plugin for Composer for stripping non-deterministic information such as timestamps from vendor directory.",
+    "license": "MIT",
+    "type": "composer-plugin",
+    "homepage": "https://github.com/loophp/composer-strip-nondeterminism",
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/drupol"
+        }
+    ],
+    "require": {
+        "php": ">= 7.2",
+        "composer-plugin-api": "^2"
+    },
+    "require-dev": {
+        "composer/composer": "^2.6",
+        "phpunit/phpunit": "^8"
+    },
+    "autoload": {
+        "psr-4": {
+            "loophp\\ComposerStripNondeterminism\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "test\\loophp\\ComposerStripNondeterminism\\": "test"
+        }
+    },
+    "extra": {
+        "class": "loophp\\ComposerStripNondeterminism\\Plugin"
+    },
+    "scripts": {
+        "test": "cd test; ../vendor/bin/phpunit -vvv",
+        "changelog-unreleased": "auto-changelog -c .auto-changelog -u",
+        "changelog-version": "auto-changelog -c .auto-changelog -v"
+    }
+}

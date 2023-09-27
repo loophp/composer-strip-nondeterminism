@@ -1,0 +1,9 @@
+/.build/
+/.direnv/
+/vendor
+/build
+/.phpunit.result.cache
+/composer.lock
+/test/.phpunit.cache/
+/.php_cs.cache
+/test/.phpunit.result.cache
