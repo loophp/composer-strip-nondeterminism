@@ -17,7 +17,7 @@ final class PathHasher
      */
     public const PERMS = 1;
 
-    public function __construct(private readonly int $flags = self::PERMS) {}
+    public function __construct(private int $flags = self::PERMS) {}
 
     private function getHashForPath(SplFileInfo $file, string $context): string {
         $toHash = [
