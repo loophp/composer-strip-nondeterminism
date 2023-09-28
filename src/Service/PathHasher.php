@@ -12,6 +12,13 @@ use SplFileInfo;
 
 final class PathHasher
 {
+    /**
+     * Should we take in account file permissions?
+     */
+    public const PERMS = 1;
+
+    public function __construct(private readonly int $flags = self::PERMS) {}
+
     private function getHashForPath(SplFileInfo $file, string $context): string {
         $toHash = [
             'hash' => match (true) {
@@ -20,18 +27,20 @@ final class PathHasher
                 $file->isDir() => hash('sha256', str_replace($context, '', $file->getRealPath())),
             },
             'path' => str_replace($context, '', $file->getPathname()),
-            'perms' => $file->getPerms(),
             'type' => $file->getType(),
         ];
 
-        print_r($toHash);
+        if ($this->flags & self::PERMS) {
+            $toHash += ['perms' => $file->getPerms()];
+        }
+
+        ksort($toHash);
 
         return hash('sha256', json_encode($toHash));
     }
 
     public function hash(string $path): string
     {
-        var_dump($path);
         $path = realpath($path);
 
         if (is_file($path)) {
