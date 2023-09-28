@@ -32,7 +32,7 @@
         "class": "loophp\\ComposerStripNondeterminism\\Plugin"
     },
     "scripts": {
-        "test": "cd test; ../vendor/bin/phpunit -vvv",
+        "test": "cd test; ../vendor/bin/phpunit --order-by=default -v",
         "changelog-unreleased": "auto-changelog -c .auto-changelog -u",
         "changelog-version": "auto-changelog -c .auto-changelog -v"
     }

@@ -24,11 +24,14 @@ final class PathHasher
             'type' => $file->getType(),
         ];
 
+        print_r($toHash);
+
         return hash('sha256', json_encode($toHash));
     }
 
     public function hash(string $path): string
     {
+        var_dump($path);
         $path = realpath($path);
 
         if (is_file($path)) {
