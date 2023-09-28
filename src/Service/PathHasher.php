@@ -19,7 +19,6 @@ final class PathHasher
                 $file->isLink(), $file->isFile() => hash_file('sha256', $file->getRealPath()),
                 $file->isDir() => hash('sha256', str_replace($context, '', $file->getRealPath())),
             },
-            'mtime' => $file->getMTime(),
             'path' => str_replace($context, '', $file->getPathname()),
             'perms' => $file->getPerms(),
             'type' => $file->getType(),

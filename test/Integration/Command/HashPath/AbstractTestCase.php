@@ -122,45 +122,8 @@ abstract class AbstractTestCase extends Framework\TestCase
         return new Filesystem\Filesystem();
     }
 
-    private static function normalizeLockFileContents(string $contents): string
-    {
-        $decoded = json_decode(
-            $contents,
-            true
-        );
-
-        unset($decoded['plugin-api-version']);
-
-        $normalized = json_encode(
-            $decoded,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION
-        );
-
-        if (!is_string($normalized)) {
-            throw new RuntimeException('Failed normalizing contents of lock file.');
-        }
-
-        return $normalized;
-    }
-
     private static function temporaryDirectory(): string
     {
         return __DIR__ . '/../../../../.build/test/';
-    }
-
-    private static function validateComposer(State $state): int
-    {
-        $application = new Application();
-
-        $application->setAutoExit(false);
-
-        return $application->run(
-            new Console\Input\ArrayInput([
-                'command' => 'validate',
-                '--no-check-publish' => true,
-                '--working-dir' => $state->directory()->path(),
-            ]),
-            new Console\Output\BufferedOutput()
-        );
     }
 }
