@@ -4,17 +4,25 @@ declare(strict_types=1);
 
 namespace loophp\ComposerStripNondeterminism\Service;
 
+use FilesystemIterator;
 use loophp\ComposerStripNondeterminism\Iterator\SortedIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 
 final class PathHasher
 {
-    private function getHashForPath(string $path, string $context): string {
+    private function getHashForPath(SplFileInfo $file, string $context): string {
         $toHash = [
-            'path' => str_replace($context, '', $path),
-            'hash' => is_dir($path) ? hash('sha256', str_replace($context, '', $path)) : hash_file('sha256', $path),
-            'mtime' => filemtime($path),
+            'hash' => match (true) {
+                $file->isLink() && $file->isDir() => hash('sha256', str_replace($context, '', $file->getLinkTarget())),
+                $file->isLink(), $file->isFile() => hash_file('sha256', $file->getRealPath()),
+                $file->isDir() => hash('sha256', str_replace($context, '', $file->getRealPath())),
+            },
+            'mtime' => $file->getMTime(),
+            'path' => str_replace($context, '', $file->getPathname()),
+            'perms' => $file->getPerms(),
+            'type' => $file->getType(),
         ];
 
         return hash('sha256', json_encode($toHash));
@@ -25,14 +33,14 @@ final class PathHasher
         $path = realpath($path);
 
         if (is_file($path)) {
-            return hash('sha256', $this->getHashForPath($path, dirname($path)));
+            return hash('sha256', $this->getHashForPath(new SplFileInfo($path), dirname($path)));
         }
 
         $sortedFileIterator = new SortedIterator(
             new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator(
                     $path,
-                    RecursiveDirectoryIterator::SKIP_DOTS
+                    RecursiveDirectoryIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS
                 ),
                 RecursiveIteratorIterator::CHILD_FIRST
             )
@@ -41,8 +49,8 @@ final class PathHasher
         $hash = '';
 
         /** @var \SplFileInfo $file */
-        foreach ($sortedFileIterator as $file) {
-            $hash = hash('sha256', sprintf('%s%s', $this->getHashForPath($file->getRealPath(), $path), $hash));
+        foreach ($sortedFileIterator as $splFile) {
+            $hash = hash('sha256', sprintf('%s%s', $this->getHashForPath($splFile, $path), $hash));
         }
 
         return ('' === $hash)

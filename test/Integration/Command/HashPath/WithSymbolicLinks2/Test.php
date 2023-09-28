@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace test\loophp\ComposerStripNondeterminism\Integration\Command\HashPath\Simple;
+namespace test\loophp\ComposerStripNondeterminism\Integration\Command\HashPath\WithSymbolicLinks2;
 
 use Symfony\Component\Console;
 use test\loophp\ComposerStripNondeterminism\Integration\Command\HashPath\AbstractTestCase;
@@ -27,7 +27,6 @@ final class Test extends AbstractTestCase
         );
 
         $initialState = $scenario->initialState();
-
         $application = self::createApplication();
 
         $tempDir = __DIR__ . '/fixture';
@@ -44,7 +43,7 @@ final class Test extends AbstractTestCase
         $display = $output->fetch();
         self::assertStringContainsString(
             sprintf(
-                '64ee22b28a92d5a5ad62eaded6b0a63d8cea03592d3e7cdbf475026224261352',
+                '68adbbebaff4c722c0add86d0b2ad06ad585cc38cf6799a9ddec646956f710a3',
                 $tempDir
             ),
             $display

@@ -22,6 +22,6 @@ final class SortedIterator extends SplHeap
      */
     public function compare($left, $right): int
     {
-        return $right->getRealpath() <=> $left->getRealpath();
+        return $right->getPathname() <=> $left->getPathname();
     }
 }
