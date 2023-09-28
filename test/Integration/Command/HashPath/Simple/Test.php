@@ -43,10 +43,7 @@ final class Test extends AbstractTestCase
         self::assertExitCodeSame(0, $exitCode);
         $display = $output->fetch();
         self::assertStringContainsString(
-            sprintf(
-                '64ee22b28a92d5a5ad62eaded6b0a63d8cea03592d3e7cdbf475026224261352',
-                $tempDir
-            ),
+            '20d2123595972f6f0afec544f41d41457c7446860c70482a9035f925bdd5887a',
             $display
         );
     }
