@@ -105,20 +105,9 @@ abstract class AbstractTestCase extends Framework\TestCase
             ));
         }
 
-        $fileSystem = self::fileSystem();
-
-        $fileSystem->remove(self::temporaryDirectory());
-
-        $fileSystem->mirror(
-            $fixtureDirectory,
-            self::temporaryDirectory()
-        );
-
-        $fileSystem->mkdir(self::temporaryRepoDirectory());
-
         $scenario = Scenario::fromCommandInvocationAndInitialState(
             $commandInvocation,
-            State::fromDirectory(Directory::fromPath(self::temporaryDirectory()))
+            State::fromDirectory(Directory::fromPath($fixtureDirectory))
         );
 
         if ($commandInvocation->is(CommandInvocation::inCurrentWorkingDirectory())) {
