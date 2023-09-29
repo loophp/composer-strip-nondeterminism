@@ -22,15 +22,19 @@ final class PathHasher
      */
     public const MTIME = 2;
 
-    public function __construct(private int $flags = self::PERMS) {}
+    public function __construct(
+        private string $algo = 'sha256',
+        private int $flags = self::PERMS
+    ) {}
 
-    private function getHashForPath(SplFileInfo $file, string $context): string {
+    private function getHashForPath(SplFileInfo $file, string $context, string $parent = ''): string {
         $toHash = [
             'hash' => match (true) {
-                $file->isLink() && $file->isDir() => hash('sha256', str_replace($context, '', $file->getLinkTarget())),
-                $file->isLink(), $file->isFile() => hash_file('sha256', $file->getRealPath()),
-                $file->isDir() => hash('sha256', str_replace($context, '', $file->getRealPath())),
+                $file->isLink() && $file->isDir() => hash($this->algo, str_replace($context, '', $file->getLinkTarget())),
+                $file->isLink(), $file->isFile() => hash_file($this->algo, $file->getRealPath()),
+                $file->isDir() => hash($this->algo, str_replace($context, '', $file->getRealPath())),
             },
+            'parent' => base64_encode($parent),
             'path' => str_replace($context, '', $file->getPathname()),
             'type' => $file->getType(),
         ];
@@ -45,37 +49,32 @@ final class PathHasher
 
         ksort($toHash);
 
-        return hash('sha256', json_encode($toHash));
+        return hash($this->algo, json_encode($toHash), true);
     }
 
     public function hash(string $path): string
     {
         $path = realpath($path);
+        $hash = $this->getHashForPath(new SplFileInfo($path), $path);
 
-        if (is_file($path)) {
-            return hash('sha256', $this->getHashForPath(new SplFileInfo($path), dirname($path)));
+        if (is_dir($path)) {
+            $sortedFileIterator = new SortedIterator(
+                new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator(
+                        $path,
+                        RecursiveDirectoryIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS
+                    ),
+                    RecursiveIteratorIterator::CHILD_FIRST
+                )
+            );
+
+            /** @var \SplFileInfo $file */
+            foreach ($sortedFileIterator as $splFile) {
+                $hash = $this->getHashForPath($splFile, $path, $hash);
+            }
         }
 
-        $sortedFileIterator = new SortedIterator(
-            new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator(
-                    $path,
-                    RecursiveDirectoryIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS
-                ),
-                RecursiveIteratorIterator::CHILD_FIRST
-            )
-        );
-
-        $hash = '';
-
-        /** @var \SplFileInfo $file */
-        foreach ($sortedFileIterator as $splFile) {
-            $hash = hash('sha256', sprintf('%s%s', $this->getHashForPath($splFile, $path), $hash));
-        }
-
-        return ('' === $hash)
-            ? hash('sha256', '')
-            : $hash;
+        return sprintf('%s-%s', $this->algo, base64_encode($hash));
     }
 
 

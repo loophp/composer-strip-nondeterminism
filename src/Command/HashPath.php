@@ -20,6 +20,7 @@ final class HashPath extends BaseCommand
             ->setName('hash')
             ->setDescription('Calculate the a hash of a file or a directory (recursively)')
             ->addArgument('path', InputArgument::REQUIRED, 'Path to hash.')
+            ->addOption('algo', null, InputOption::VALUE_OPTIONAL, 'Hashing algorithm to use', 'sha256')
             ->addOption('disable-permissions', null, InputOption::VALUE_NONE, 'Disable hashing of the file permissions.')
             ->addOption('enable-mtime', null, InputOption::VALUE_NONE, 'Enable hashing of the file modification time (disabled by default because it does not produce a stable hash across Windows and Linux operating systems.)');
     }
@@ -36,7 +37,10 @@ final class HashPath extends BaseCommand
             $arguments ^= PathHasher::PERMS;
         }
 
-        $pathHasher = new PathHasher($arguments);
+        $pathHasher = new PathHasher(
+            $input->getOption('algo'),
+            $arguments
+        );
 
         $output->writeln(
             $pathHasher->hash($input->getArgument('path'))
