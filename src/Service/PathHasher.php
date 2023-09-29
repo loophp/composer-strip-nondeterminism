@@ -13,9 +13,14 @@ use SplFileInfo;
 final class PathHasher
 {
     /**
-     * Should we take in account file permissions?
+     * Should we hash the file permissions?
      */
     public const PERMS = 1;
+
+    /**
+     * Should we hash the file modification time?
+     */
+    public const MTIME = 2;
 
     public function __construct(private int $flags = self::PERMS) {}
 
@@ -29,6 +34,10 @@ final class PathHasher
             'path' => str_replace($context, '', $file->getPathname()),
             'type' => $file->getType(),
         ];
+
+        if ($this->flags & self::MTIME) {
+            $toHash += ['mtime' => $file->getMTime()];
+        }
 
         if ($this->flags & self::PERMS) {
             $toHash += ['perms' => $file->getPerms()];
