@@ -42,7 +42,7 @@ final class Test extends AbstractTestCase
         self::assertExitCodeSame(0, $exitCode);
         $display = $output->fetch();
         self::assertStringContainsString(
-            'sha256-VKLaIL8jb1ew72OqYBfnBubxglTg/6+5V/B7xsS2Sbw=',
+            'sha256-5S0daRKWs/GDKxWKFIatPZzwOLsV5r7MzA080+5Er8U=',
             $display
         );
     }
@@ -74,7 +74,7 @@ final class Test extends AbstractTestCase
         self::assertExitCodeSame(0, $exitCode);
         $display = $output->fetch();
         self::assertStringContainsString(
-            'sha256-rJjW4Z1Sbgwsa09oy37ryBTZcQnO+pcG08vqoHlZ/lU=',
+            'sha256-krJtCUJGTx89jBbziVX5MtcSFCNTgC2xwXDoH1Pc/RA=',
             $display
         );
     }

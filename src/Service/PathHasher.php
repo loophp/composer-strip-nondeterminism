@@ -27,24 +27,29 @@ final class PathHasher
         private int $flags = self::PERMS
     ) {}
 
-    private function getHashForPath(SplFileInfo $file, string $context, string $parent = ''): string {
+    private function getHashForPath(SplFileInfo $file, string $context, string $parent = '/'): string {
+        $realPath = $file->getRealPath();
+
         $toHash = [
-            'hash' => match (true) {
-                $file->isLink() && $file->isDir() => hash($this->algo, str_replace($context, '', $file->getLinkTarget())),
-                $file->isLink(), $file->isFile() => hash_file($this->algo, $file->getRealPath()),
-                $file->isDir() => hash($this->algo, str_replace($context, '', $file->getRealPath())),
-            },
             'parent' => base64_encode($parent),
             'path' => str_replace($context, '', $file->getPathname()),
             'type' => $file->getType(),
         ];
 
-        if ($this->flags & self::MTIME) {
-            $toHash += ['mtime' => $file->getMTime()];
-        }
+        if (false !== $realPath) {
+            $toHash += ['hash' => match (true) {
+                $file->isLink() && $file->isDir() => hash($this->algo, $file->getLinkTarget()),
+                $file->isLink(), $file->isFile() => hash_file($this->algo, $realPath),
+                $file->isDir() => hash($this->algo, $file->getRealPath()),
+            }];
 
-        if ($this->flags & self::PERMS) {
-            $toHash += ['perms' => $file->getPerms()];
+            if ($this->flags & self::MTIME) {
+                $toHash += ['mtime' => $file->getMTime()];
+            }
+
+            if ($this->flags & self::PERMS) {
+                $toHash += ['perms' => $file->getPerms()];
+            }
         }
 
         ksort($toHash);
@@ -58,18 +63,14 @@ final class PathHasher
         $hash = $this->getHashForPath(new SplFileInfo($path), $path);
 
         if (is_dir($path)) {
-            $sortedFileIterator = new SortedIterator(
-                new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator(
-                        $path,
-                        RecursiveDirectoryIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS
-                    ),
-                    RecursiveIteratorIterator::CHILD_FIRST
-                )
+            $fileIterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator(
+                    $path,
+                ),
             );
 
             /** @var \SplFileInfo $file */
-            foreach ($sortedFileIterator as $splFile) {
+            foreach ($fileIterator as $splFile) {
                 $hash = $this->getHashForPath($splFile, $path, $hash);
             }
         }
