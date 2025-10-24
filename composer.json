@@ -12,7 +12,8 @@
     ],
     "require": {
         "php": ">= 8.0",
-        "composer-plugin-api": "^2"
+        "composer-plugin-api": "^2",
+        "loophp/path-hasher": "^1"
     },
     "require-dev": {
         "composer/composer": "^2.6",
@@ -35,5 +36,6 @@
         "test": "cd test; ../vendor/bin/phpunit --order-by=default -v",
         "changelog-unreleased": "auto-changelog -c .auto-changelog -u",
         "changelog-version": "auto-changelog -c .auto-changelog -v"
-    }
+    },
+    "minimum-stability": "dev"
 }

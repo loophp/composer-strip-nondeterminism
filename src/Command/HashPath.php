@@ -6,7 +6,7 @@ namespace loophp\ComposerStripNondeterminism\Command;
 
 use Composer\Command\BaseCommand;
 use Composer\Console\Input\InputOption;
-use loophp\ComposerStripNondeterminism\Service\PathHasher;
+use Loophp\PathHasher\NAR;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,31 +20,14 @@ final class HashPath extends BaseCommand
             ->setName('hash')
             ->setDescription('Calculate the a hash of a file or a directory (recursively)')
             ->addArgument('path', InputArgument::REQUIRED, 'Path to hash.')
-            ->addOption('algo', null, InputOption::VALUE_OPTIONAL, 'Hashing algorithm to use', 'sha256')
-            ->addOption('disable-permissions', null, InputOption::VALUE_NONE, 'Disable hashing of the file permissions.')
-            ->addOption('enable-mtime', null, InputOption::VALUE_NONE, 'Enable hashing of the file modification time (disabled by default because it does not produce a stable hash across Windows and Linux operating systems.)');
+            ->addOption('algo', null, InputOption::VALUE_OPTIONAL, 'Hashing algorithm to use', 'sha256');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $arguments = PathHasher::PERMS;
+        $pathHasher = new NAR($input->getOption('algo'));
 
-        if ($input->getOption('enable-mtime')) {
-            $arguments |= PathHasher::MTIME;
-        }
-
-        if ($input->getOption('disable-permissions')) {
-            $arguments ^= PathHasher::PERMS;
-        }
-
-        $pathHasher = new PathHasher(
-            $input->getOption('algo'),
-            $arguments
-        );
-
-        $output->writeln(
-            $pathHasher->hash($input->getArgument('path'))
-        );
+        $output->writeln($pathHasher->hash($input->getArgument('path')));
 
         return Command::SUCCESS;
     }

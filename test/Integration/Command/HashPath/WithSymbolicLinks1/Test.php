@@ -43,7 +43,7 @@ final class Test extends AbstractTestCase
         self::assertExitCodeSame(0, $exitCode);
         $display = $output->fetch();
         self::assertStringContainsString(
-            'sha256-f1Ft/KWcokldgoj8iSsD/bnyHXPOCiZ/XRT4Br5fwec=',
+            'sha256-dYnSzvmNCwVD1szUQSihB+L2RssrHVBQc4mJLsRXgQI=',
             $display
         );
     }
